@@ -97,10 +97,12 @@ class LaTimes:
             logger.info('Applying topic filter')
             topics = ['Lifestyle']
             self.browser_lib.execute_javascript('window.scrollTo(0, document.body.scrollHeight);')
-            self.browser_lib.wait_until_page_contains_element('//modality-custom-element')
-            pop_up = self.browser_lib.find_element('//modality-custom-element')
-            pop_close_button = self.browser_lib.driver.execute_script('return arguments[0].shadowRoot.querySelector("a")', pop_up)
-            pop_close_button.click()
+            time.sleep(2)
+            if self.browser_lib.does_page_contain_element('//modality-custom-element'):
+                self.browser_lib.wait_until_page_contains_element('//modality-custom-element')
+                pop_up = self.browser_lib.find_element('//modality-custom-element')
+                pop_close_button = self.browser_lib.driver.execute_script('return arguments[0].shadowRoot.querySelector("a")', pop_up)
+                pop_close_button.click()
             for topic in topics:
                 self.select_topic(topic=topic)
             logger.info('Sorting results')
