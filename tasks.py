@@ -7,10 +7,9 @@ try:
     work_items.get_input_work_item()
     work_item = work_items.get_work_item_variables()
     logger.info(f"Work items data {work_item}")
-    latest_work_item = work_item.get("variables", dict())
-    search = latest_work_item.get('search', 'Imran Khan')
-    month_range = latest_work_item.get('months', 0)
-    topics = latest_work_item.get('topics', 'Sports')
+    search = work_item.get('search', 'Imran Khan')
+    month_range = work_item.get('months', 0)
+    topics = work_item.get('topics', 'Sports')
 except KeyError:
     search = "Imran Khan"
     month_range = 0
