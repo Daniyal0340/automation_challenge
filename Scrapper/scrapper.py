@@ -11,6 +11,7 @@ import requests
 from RPA.Browser.Selenium import Selenium
 from RPA.Excel.Files import Files
 from RPA.Robocorp.WorkItems import WorkItems
+from RPA.Archive import Archive
 from selenium.webdriver.common.by import By
 
 from Scrapper.locators import Locators
@@ -23,6 +24,7 @@ class LaTimes:
         self.browser_lib = Selenium()
         self.work_item_lib = WorkItems()
         self.excel_lib = Files()
+        self.archive_lib = Archive()
         self.locator = Locators()
         self.search_phrase = search
         self.data = {
@@ -103,6 +105,7 @@ class LaTimes:
         self.excel_lib.create_workbook(path=f"{os.getcwd()}/output/news.xlsx", fmt="xlsx")
         self.excel_lib.append_rows_to_worksheet(self.data, header=True)
         self.excel_lib.save_workbook()
+        self.archive_lib.archive_folder_with_zip(f"{os.getcwd()}/output", include="*.zip", archive_name=f"{os.getcwd()}/images")
 
     def start(self):
         try:
