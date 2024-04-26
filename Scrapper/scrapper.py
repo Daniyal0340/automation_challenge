@@ -80,6 +80,7 @@ class LaTimes:
                 news = self.browser_lib.find_elements(self.locator.news_list)
                 images = self.browser_lib.find_elements(self.locator.image)
                 if len(news) != len(images):
+                    self.browser_lib.driver.execute_script("window.scrollTo(0, 0);")
                     self.browser_lib.reload_page()
                     time.sleep(4)
                     tries -= 1
@@ -118,6 +119,7 @@ class LaTimes:
                 self.data['Price Status'].append(str(contain_amount))
                 self.data['Phrase Count'].append((title + desc).count(self.search_phrase))
                 logger.info(f'got news {title}')
+            self.browser_lib.scroll_element_into_view(self.locator.next_page)
             self.browser_lib.click_element_when_visible(self.locator.next_page)
 
     def save_news(self):

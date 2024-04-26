@@ -10,7 +10,7 @@ try:
     search = latest_work_item.get('search', 'Imran Khan')
     month_range = latest_work_item.get('months', 0)
     topics = latest_work_item.get('topics', 'Sports')
-except Exception:
+except KeyError:
     search = "Imran Khan"
     month_range = 0
     topics = 'Sports'
