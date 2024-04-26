@@ -1,5 +1,5 @@
 import datetime
-import logging
+from Scrapper import logger
 import os
 import re
 import time
@@ -14,14 +14,6 @@ from RPA.Robocorp.WorkItems import WorkItems
 from selenium.webdriver.common.by import By
 
 from Scrapper.locators import Locators
-
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-handler = logging.StreamHandler()
-handler.setFormatter(formatter)
-logger.addHandler(handler)
 
 
 class LaTimes:
