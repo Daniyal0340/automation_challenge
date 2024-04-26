@@ -83,7 +83,7 @@ class LaTimes:
                 image = news_element.find_element(By.XPATH, self.locator.image)
                 image_url = image.get_attribute('src')
                 response = requests.get(image_url)
-                image_path = os.path.join(f"{os.getcwd()}/output/{slugify(title, separator='_')}.png")
+                image_path = os.path.join(f"{os.getcwd()}/images/{slugify(title, separator='_')}.png")
                 with open(image_path, 'wb') as file:
                     file.write(response.content)
                 contain_amount = False
@@ -105,7 +105,8 @@ class LaTimes:
         self.excel_lib.create_workbook(path=f"{os.getcwd()}/output/news.xlsx", fmt="xlsx")
         self.excel_lib.append_rows_to_worksheet(self.data, header=True)
         self.excel_lib.save_workbook()
-        self.archive_lib.archive_folder_with_zip(f"{os.getcwd()}/output", include="*.zip", archive_name=f"{os.getcwd()}/images")
+        self.archive_lib.archive_folder_with_zip(f"{os.getcwd()}/images", include="*.png", archive_name=f"{os.getcwd()}/output/images.zip")
+
 
     def start(self):
         try:
