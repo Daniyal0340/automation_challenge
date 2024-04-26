@@ -89,24 +89,27 @@ class LaTimes:
         self.excel_lib.save_workbook()
 
     def start(self):
-        logger.info('Process start')
-        self.open_news_site("https://www.latimes.com/")
-        logger.info('Searching phrase')
-        self.search_news_with_phrase()
-        logger.info('Applying topic filter')
-        topics = ['Lifestyle']
-        self.browser_lib.execute_javascript('window.scrollTo(0, document.body.scrollHeight);')
-        time.sleep(2)
-        self.browser_lib.wait_until_page_contains_element('//modality-custom-element')
-        pop_up = self.browser_lib.find_element('//modality-custom-element')
-        pop_close_button = self.browser_lib.driver.execute_script('return arguments[0].shadowRoot.querySelector("a")', pop_up)
-        pop_close_button.click()
-        for topic in topics:
-            self.select_topic(topic=topic)
-        logger.info('Sorting results')
-        self.sort_by_latest()
-        logger.info('scrapping news')
-        self.read_news()
-        logger.info('Saving news')
-        self.save_news()
-        logger.info('Process finish')
+        try:
+            logger.info('Process start')
+            self.open_news_site("https://www.latimes.com/")
+            logger.info('Searching phrase')
+            self.search_news_with_phrase()
+            logger.info('Applying topic filter')
+            topics = ['Lifestyle']
+            self.browser_lib.execute_javascript('window.scrollTo(0, document.body.scrollHeight);')
+            self.browser_lib.wait_until_page_contains_element('//modality-custom-element')
+            pop_up = self.browser_lib.find_element('//modality-custom-element')
+            pop_close_button = self.browser_lib.driver.execute_script('return arguments[0].shadowRoot.querySelector("a")', pop_up)
+            pop_close_button.click()
+            for topic in topics:
+                self.select_topic(topic=topic)
+            logger.info('Sorting results')
+            self.sort_by_latest()
+            logger.info('scrapping news')
+            self.read_news()
+            logger.info('Saving news')
+            self.save_news()
+            logger.info('Process finish')
+        except Exception as e:
+            self.browser_lib.capture_page_screenshot(f'{os.getcwd()}/output/error.png')
+            raise e
