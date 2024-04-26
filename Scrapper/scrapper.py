@@ -52,6 +52,7 @@ class LaTimes:
         self.browser_lib.wait_and_click_button(self.locator.search_submit)
 
     def sort_by_latest(self):
+        self.browser_lib.wait_until_element_is_visible(self.locator.sort_btn)
         self.browser_lib.select_from_list_by_value(self.locator.sort_btn, '1')
 
     def select_topic(self):
@@ -68,6 +69,7 @@ class LaTimes:
     def read_news(self):
         time.sleep(2)
         self.browser_lib.execute_javascript('window.scrollTo(0, document.body.scrollHeight);')
+        self.browser_lib.wait_until_page_contains_element('//div[@class="search-results-module-page-counts"]')
         pages = self.browser_lib.find_element('//div[@class="search-results-module-page-counts"]').text.split('of')[-1].strip()
         for page_number in range(int(pages.replace(',', ''))):
             logger.info(f'reading news at page {page_number}')
