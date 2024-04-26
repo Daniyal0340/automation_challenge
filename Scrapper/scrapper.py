@@ -76,7 +76,7 @@ class LaTimes:
         for page_number in range(int(pages.replace(',', ''))):
             logger.info(f'reading news at page {page_number}')
             tries = 3
-            while tries > 3:
+            while tries > 0:
                 news = self.browser_lib.find_elements(self.locator.news_list)
                 images = self.browser_lib.find_elements(self.locator.image)
                 if len(news) != len(images):
