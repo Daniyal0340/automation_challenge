@@ -47,6 +47,7 @@ class LaTimes:
 
     def search_news_with_phrase(self):
         self.browser_lib.find_element(self.locator.search_icon).click()
+        logger.info(f'Searching with phrase {self.search_phrase}')
         self.browser_lib.input_text_when_element_is_visible(self.locator.search_input, self.search_phrase)
         self.browser_lib.wait_and_click_button(self.locator.search_submit)
 
@@ -55,11 +56,14 @@ class LaTimes:
 
     def select_topic(self):
         for topic in self.topics:
-            for see_all_button in self.browser_lib.find_elements('//span[text()="See All"]'):
-                self.browser_lib.scroll_element_into_view(see_all_button)
-                see_all_button.click()
-            self.browser_lib.scroll_element_into_view(f'//span[text()="{topic}"]')
-            self.browser_lib.click_element_when_visible(f'//span[text()="{topic}"]')
+            time.sleep(2)
+            if self.browser_lib.does_page_contain_element(f'//span[text()="{topic}"]'):
+                logger.info(f'Selecting topic {topic}')
+                for see_all_button in self.browser_lib.find_elements('//span[text()="See All"]'):
+                    self.browser_lib.scroll_element_into_view(see_all_button)
+                    see_all_button.click()
+                self.browser_lib.scroll_element_into_view(f'//span[text()="{topic}"]')
+                self.browser_lib.click_element_when_visible(f'//span[text()="{topic}"]')
 
     def read_news(self):
         time.sleep(2)
