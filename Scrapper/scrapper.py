@@ -75,14 +75,21 @@ class LaTimes:
         pages = self.browser_lib.find_element(self.locator.page_count).text.split('of')[-1].strip()
         for page_number in range(int(pages.replace(',', ''))):
             logger.info(f'reading news at page {page_number}')
-            while True:
+            tries = 3
+            while tries > 3:
                 news = self.browser_lib.find_elements(self.locator.news_list)
                 images = self.browser_lib.find_elements(self.locator.image)
                 if len(news) != len(images):
                     self.browser_lib.reload_page()
-                    time.sleep(2)
+                    time.sleep(4)
+                    tries -= 1
+                    logger.info('page didnt load properly reloading')
                 else:
                     break
+            else:
+                self.browser_lib.capture_page_screenshot(f'{os.getcwd()}/output/page_load_issue.png')
+                logger.info('Closing because page didnt load properly')
+                return None
             for news_element in self.browser_lib.find_elements(self.locator.news_list):
                 date = news_element.find_element(By.XPATH, self.locator.date).text
                 try:
@@ -110,6 +117,7 @@ class LaTimes:
                 self.data['Image Path'].append(image_path)
                 self.data['Price Status'].append(str(contain_amount))
                 self.data['Phrase Count'].append((title + desc).count(self.search_phrase))
+                logger.info(f'got news {title}')
             self.browser_lib.click_element_when_visible(self.locator.next_page)
 
     def save_news(self):
