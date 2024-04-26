@@ -67,24 +67,6 @@ class LaTimes:
         pages = self.browser_lib.find_element(self.locator.page_count).text.split('of')[-1].strip()
         for page_number in range(int(pages.replace(',', ''))):
             logger.info(f'reading news at page {page_number}')
-            tries = 3
-            while tries > 0:
-                news = self.browser_lib.find_elements(self.locator.news_list)
-                images = self.browser_lib.find_elements(self.locator.image_list)
-                logger.info(len(news) != len(images))
-                if len(news) != len(images):
-                    self.browser_lib.reload_page()
-                    page_height = self.browser_lib.execute_javascript("return document.body.scrollHeight")
-                    self.browser_lib.execute_javascript(f"window.scrollTo(0, {page_height / 2});")
-                    time.sleep(4)
-                    tries -= 1
-                    logger.info('page didnt load properly reloading')
-                else:
-                    break
-            else:
-                self.browser_lib.capture_page_screenshot(f'{os.getcwd()}/output/page_load_issue.png')
-                logger.info('Closing because page didnt load properly')
-                return None
             for news_element in self.browser_lib.find_elements(self.locator.news_list):
                 date = news_element.find_element(By.XPATH, self.locator.date).text
                 try:
