@@ -40,7 +40,7 @@ class LaTimes:
             'Phrase Count': []
         }
         self.topics = topics.split(',')
-        self.month_range = (datetime.datetime.now() - dateutil.relativedelta.relativedelta(months=month_range)).month
+        self.month_range = datetime.datetime.now() - dateutil.relativedelta.relativedelta(months=month_range)
 
     def open_news_site(self, url):
         self.browser_lib.open_available_browser(url, maximized=True)
@@ -83,7 +83,7 @@ class LaTimes:
                 date = news_element.find_element(By.XPATH, './/p[@class="promo-timestamp"]').text
                 try:
                     datetime_obj = parse(date)
-                    if datetime_obj.month < self.month_range:
+                    if datetime_obj < self.month_range:
                         return None
                 except ParserError:
                     ...
