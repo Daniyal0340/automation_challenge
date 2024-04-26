@@ -3,7 +3,9 @@
 
 tasks:
   task1:
-    shell: python -m tasks.py
+    command:
+    - python
+    - tasks.py
 
 preRunScripts:
   - pip install -r requirements.txt
