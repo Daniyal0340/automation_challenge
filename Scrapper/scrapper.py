@@ -1,8 +1,12 @@
+import datetime
 import logging
 import os
 import re
 import time
+
+import dateutil.relativedelta
 from slugify import slugify
+from dateutil.parser import parse, ParserError
 import requests
 from RPA.Browser.Selenium import Selenium
 from RPA.Excel.Files import Files
@@ -21,7 +25,7 @@ logger.addHandler(handler)
 
 
 class LaTimes:
-    def __init__(self, search, topics):
+    def __init__(self, search, topics, month_range):
         self.browser_lib = Selenium()
         self.work_item_lib = WorkItems()
         self.excel_lib = Files()
@@ -35,7 +39,8 @@ class LaTimes:
             'Price Status': [],
             'Phrase Count': []
         }
-        self.topics = topics
+        self.topics = topics.split(',')
+        self.month_range = (datetime.datetime.now() - dateutil.relativedelta.relativedelta(months=month_range)).month
 
     def open_news_site(self, url):
         self.browser_lib.open_available_browser(url, maximized=True)
@@ -62,8 +67,22 @@ class LaTimes:
         pages = self.browser_lib.find_element('//div[@class="search-results-module-page-counts"]').text.split('of')[-1].strip()
         for page_number in range(int(pages.replace(',', ''))):
             logger.info(f'reading news at page {page_number}')
+            while True:
+                news = self.browser_lib.find_elements('//ul[@class="search-results-module-results-menu"]/li')
+                images = self.browser_lib.find_elements('//div[@class="promo-media"]')
+                if len(news) != len(images):
+                    self.browser_lib.reload_page()
+                    time.sleep(2)
+                else:
+                    break
             for news_element in self.browser_lib.find_elements('//ul[@class="search-results-module-results-menu"]/li'):
                 date = news_element.find_element(By.XPATH, './/p[@class="promo-timestamp"]').text
+                try:
+                    datetime_obj = parse(date)
+                    if datetime_obj.month < self.month_range:
+                        return None
+                except ParserError:
+                    ...
                 title = news_element.find_element(By.XPATH, './/h3[@class="promo-title"]').text
                 desc = news_element.find_element(By.XPATH, './/p[@class="promo-description"]').text
                 image = news_element.find_element(By.XPATH, './/img')
@@ -97,7 +116,6 @@ class LaTimes:
             logger.info('Searching phrase')
             self.search_news_with_phrase()
             logger.info('Applying topic filter')
-            topics = ['Lifestyle']
             self.browser_lib.execute_javascript('window.scrollTo(0, document.body.scrollHeight);')
             time.sleep(2)
             if self.browser_lib.does_page_contain_element('//modality-custom-element'):
