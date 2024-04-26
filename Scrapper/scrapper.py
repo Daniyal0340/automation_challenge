@@ -72,6 +72,7 @@ class LaTimes:
                 try:
                     datetime_obj = parse(date)
                     if datetime_obj < self.month_range:
+                        logger.info(f'news at {datetime_obj} is older than {self.month_range} terminating')
                         return None
                 except ParserError:
                     ...
