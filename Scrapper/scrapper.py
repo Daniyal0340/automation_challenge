@@ -21,7 +21,7 @@ logger.addHandler(handler)
 
 
 class LaTimes:
-    def __init__(self, search):
+    def __init__(self, search, topics):
         self.browser_lib = Selenium()
         self.work_item_lib = WorkItems()
         self.excel_lib = Files()
@@ -35,6 +35,7 @@ class LaTimes:
             'Price Status': [],
             'Phrase Count': []
         }
+        self.topics = topics
 
     def open_news_site(self, url):
         self.browser_lib.open_available_browser(url, maximized=True)
@@ -47,12 +48,13 @@ class LaTimes:
     def sort_by_latest(self):
         self.browser_lib.select_from_list_by_value(self.locator.sort_btn, '1')
 
-    def select_topic(self, topic):
-        for see_all_button in self.browser_lib.find_elements('//span[text()="See All"]'):
-            self.browser_lib.scroll_element_into_view(see_all_button)
-            see_all_button.click()
-        self.browser_lib.scroll_element_into_view(f'//span[text()="{topic}"]')
-        self.browser_lib.click_element_when_visible(f'//span[text()="{topic}"]')
+    def select_topic(self):
+        for topic in self.topics:
+            for see_all_button in self.browser_lib.find_elements('//span[text()="See All"]'):
+                self.browser_lib.scroll_element_into_view(see_all_button)
+                see_all_button.click()
+            self.browser_lib.scroll_element_into_view(f'//span[text()="{topic}"]')
+            self.browser_lib.click_element_when_visible(f'//span[text()="{topic}"]')
 
     def read_news(self):
         time.sleep(2)
@@ -103,8 +105,7 @@ class LaTimes:
                 pop_up = self.browser_lib.find_element('//modality-custom-element')
                 pop_close_button = self.browser_lib.driver.execute_script('return arguments[0].shadowRoot.querySelector("a")', pop_up)
                 pop_close_button.click()
-            for topic in topics:
-                self.select_topic(topic=topic)
+            self.select_topic()
             logger.info('Sorting results')
             self.sort_by_latest()
             logger.info('scrapping news')
