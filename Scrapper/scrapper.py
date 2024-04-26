@@ -32,9 +32,9 @@ class LaTimes:
         self.locator = Locators()
         self.search_phrase = search
         self.data = {
-            'Date': [],
             'Title': [],
             'Description': [],
+            'Date': [],
             'Image Path': [],
             'Price Status': [],
             'Phrase Count': []
@@ -100,7 +100,7 @@ class LaTimes:
                 self.data['Title'].append(title)
                 self.data['Description'].append(desc)
                 self.data['Image Path'].append(image_path)
-                self.data['Price Status'].append(contain_amount)
+                self.data['Price Status'].append(str(contain_amount))
                 self.data['Phrase Count'].append((title + desc).count(self.search_phrase))
             self.browser_lib.click_element_when_visible('//div[@class="search-results-module-next-page"]')
 
