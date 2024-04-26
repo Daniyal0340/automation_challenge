@@ -79,6 +79,7 @@ class LaTimes:
             while tries > 0:
                 news = self.browser_lib.find_elements(self.locator.news_list)
                 images = self.browser_lib.find_elements(self.locator.image)
+                logger.info(len(news) != len(images))
                 if len(news) != len(images):
                     self.browser_lib.driver.execute_script("window.scrollTo(0, 0);")
                     self.browser_lib.reload_page()

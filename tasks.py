@@ -7,6 +7,7 @@ try:
     work_items.get_input_work_item()
     work_item = work_items.get_work_item_variables()
     latest_work_item = work_item.get("variables", dict())
+    print(latest_work_item)
     search = latest_work_item.get('search', 'Imran Khan')
     month_range = latest_work_item.get('months', 0)
     topics = latest_work_item.get('topics', 'Sports')
