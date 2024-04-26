@@ -105,8 +105,8 @@ class LaTimes:
         self.excel_lib.create_workbook(path=f"{os.getcwd()}/output/news.xlsx", fmt="xlsx")
         self.excel_lib.append_rows_to_worksheet(self.data, header=True)
         self.excel_lib.save_workbook()
-        self.archive_lib.archive_folder_with_zip(f"{os.getcwd()}/images", include="*.png", archive_name=f"{os.getcwd()}/output/images.zip")
-
+        if os.listdir(f"{os.getcwd()}/images"):
+            self.archive_lib.archive_folder_with_zip(f"{os.getcwd()}/images", include="*.png", archive_name=f"{os.getcwd()}/output/images.zip")
 
     def start(self):
         try:
