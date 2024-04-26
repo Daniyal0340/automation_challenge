@@ -74,8 +74,8 @@ class LaTimes:
                 logger.info(len(news) != len(images))
                 if len(news) != len(images):
                     self.browser_lib.reload_page()
-                    self.browser_lib.execute_javascript("window.scrollTo(0, 0);")
-                    self.browser_lib.execute_javascript('window.scrollTo(0, document.body.scrollHeight);')
+                    page_height = self.browser_lib.execute_javascript("return document.body.scrollHeight")
+                    self.browser_lib.execute_javascript(f"window.scrollTo(0, {page_height / 2});")
                     time.sleep(4)
                     tries -= 1
                     logger.info('page didnt load properly reloading')
