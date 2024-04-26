@@ -5,7 +5,8 @@ tasks:
   task1:
     shell: python -m tasks.py
 
-devTasks: {}
+preRunScripts:
+  - pip install -r requirements.txt
 
 environmentConfigs:
   - environment_windows_amd64_freeze.yaml
