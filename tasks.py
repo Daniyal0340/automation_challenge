@@ -18,7 +18,7 @@ except KeyError:
     topics = 'Sports'
 
 if __name__ == "__main__":
-    if os.path.exists(f"{os.getcwd()}/images"):
+    if not os.path.exists(f"{os.getcwd()}/images"):
         os.mkdir(f"{os.getcwd()}/images")
     la_time = LaTimes(search=search, topics=topics, month_range=month_range)
     la_time.start()
