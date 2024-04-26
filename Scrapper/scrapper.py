@@ -70,34 +70,40 @@ class LaTimes:
         for page_number in range(int(pages.replace(',', ''))):
             logger.info(f'reading news at page {page_number}')
             for news_element in self.browser_lib.find_elements(self.locator.news_list):
-                date = news_element.find_element(By.XPATH, self.locator.date).text
                 try:
-                    datetime_obj = parse(date)
-                    if datetime_obj < self.month_range:
-                        logger.info(f'news at {datetime_obj} is older than {self.month_range} terminating')
-                        return None
-                except ParserError:
-                    ...
-                title = news_element.find_element(By.XPATH, self.locator.title).text
-                desc = news_element.find_element(By.XPATH, self.locator.description).text
-                image = news_element.find_element(By.XPATH, self.locator.image)
-                image_url = image.get_attribute('src')
-                response = requests.get(image_url)
-                image_path = os.path.join(f"{os.getcwd()}/images/{slugify(title, separator='_')}.png")
-                with open(image_path, 'wb') as file:
-                    file.write(response.content)
-                contain_amount = False
-                for pattern in [r'\$\d+(\.\d+)?', r'\d+(\.\d+)? dollars', r'\d+(\.\d+)? USD']:
-                    if re.search(pattern, title + desc):
-                        contain_amount = True
-                        break
-                self.data['Date'].append(date)
-                self.data['Title'].append(title)
-                self.data['Description'].append(desc)
-                self.data['Image Path'].append(image_path)
-                self.data['Price Status'].append(str(contain_amount))
-                self.data['Phrase Count'].append((title + desc).count(self.search_phrase))
-                logger.info(f'got news {title}')
+                    date = news_element.find_element(By.XPATH, self.locator.date).text
+                    try:
+                        datetime_obj = parse(date)
+                        if datetime_obj < self.month_range:
+                            logger.info(f'news at {datetime_obj} is older than {self.month_range} terminating')
+                            return None
+                    except ParserError:
+                        ...
+                    title = news_element.find_element(By.XPATH, self.locator.title).text
+                    try:
+                        desc = news_element.find_element(By.XPATH, self.locator.description).text
+                    except Exception:
+                        desc = ""
+                    image = news_element.find_element(By.XPATH, self.locator.image)
+                    image_url = image.get_attribute('src')
+                    response = requests.get(image_url)
+                    image_path = os.path.join(f"{os.getcwd()}/images/{slugify(title, separator='_')}.png")
+                    with open(image_path, 'wb') as file:
+                        file.write(response.content)
+                    contain_amount = False
+                    for pattern in [r'\$\d+(\.\d+)?', r'\d+(\.\d+)? dollars', r'\d+(\.\d+)? USD']:
+                        if re.search(pattern, title + desc):
+                            contain_amount = True
+                            break
+                    self.data['Date'].append(date)
+                    self.data['Title'].append(title)
+                    self.data['Description'].append(desc)
+                    self.data['Image Path'].append(image_path)
+                    self.data['Price Status'].append(str(contain_amount))
+                    self.data['Phrase Count'].append((title + desc).count(self.search_phrase))
+                    logger.info(f'got news {title}')
+                except Exception as e:
+                    logger.info(f"Skipping news at page {page_number} due to error {e}")
             self.browser_lib.scroll_element_into_view(self.locator.next_page)
             self.browser_lib.click_element_when_visible(self.locator.next_page)
 
