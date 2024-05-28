@@ -2,7 +2,6 @@ import datetime
 from Scrapper import logger
 import os
 import re
-import time
 
 import dateutil.relativedelta
 from slugify import slugify
@@ -18,7 +17,17 @@ from Scrapper.locators import Locators
 
 
 class LaTimes:
-    def __init__(self, search, topics, month_range):
+    """A class for scraping news from the Los Angeles Times website."""
+    def __init__(self, search: str, topics: str, month_range: int):
+        """
+        Initialize LaTimes object.
+
+        Args:
+            search (str): The search phrase to use.
+            topics (str): Comma-separated list of topics to filter news by.
+            month_range (int): Number of months back from the current date to consider news.
+
+        """
         if month_range == 0:
             month_range = 1
         self.browser_lib = Selenium()
@@ -36,24 +45,33 @@ class LaTimes:
             'Phrase Count': []
         }
         self.topics = topics.split(',')
-        self.month_range = datetime.datetime.now() - dateutil.relativedelta.relativedelta(months=month_range)
+        self.month_range_date_time = datetime.datetime.now() - dateutil.relativedelta.relativedelta(months=month_range)
 
-    def open_news_site(self, url):
+    def open_news_site(self, url: str) -> None:
+        """
+        Opening the Los Angeles Times Site.
+
+        Args:
+            url (str): The URL of the Site.
+
+        """
         self.browser_lib.open_available_browser(url, maximized=True)
 
-    def search_news_with_phrase(self):
+    def search_news_with_phrase(self) -> None:
+        """Search news using the provided search phrase."""
         self.browser_lib.find_element(self.locator.search_icon).click()
         logger.info(f'Searching with phrase {self.search_phrase}')
         self.browser_lib.input_text_when_element_is_visible(self.locator.search_input, self.search_phrase)
         self.browser_lib.wait_and_click_button(self.locator.search_submit)
 
-    def sort_by_latest(self):
+    def sort_by_latest(self) -> None:
+        """Sort news by latest."""
         self.browser_lib.wait_until_element_is_visible(self.locator.sort_btn)
         self.browser_lib.select_from_list_by_value(self.locator.sort_btn, '1')
 
-    def select_topic(self):
+    def select_topic(self) -> None:
+        """Select topics to filter news."""
         for topic in self.topics:
-            time.sleep(2)
             if self.browser_lib.does_page_contain_element(f'//span[text()="{topic}"]'):
                 logger.info(f'Selecting topic {topic}')
                 for see_all_button in self.browser_lib.find_elements(self.locator.see_all_btn):
@@ -62,8 +80,13 @@ class LaTimes:
                 self.browser_lib.scroll_element_into_view(f'//span[text()="{topic}"]')
                 self.browser_lib.click_element_when_visible(f'//span[text()="{topic}"]')
 
-    def read_news(self):
-        time.sleep(2)
+    def download_image(self, image_url: str, image_path: str):
+        response = requests.get(image_url)
+        with open(image_path, 'wb') as file:
+            file.write(response.content)
+
+    def read_news(self) -> None:
+        """Function that reading news articles."""
         self.browser_lib.execute_javascript('window.scrollTo(0, document.body.scrollHeight);')
         self.browser_lib.wait_until_page_contains_element(self.locator.page_count)
         pages = self.browser_lib.find_element(self.locator.page_count).text.split('of')[-1].strip()
@@ -74,8 +97,8 @@ class LaTimes:
                     date = news_element.find_element(By.XPATH, self.locator.date).text
                     try:
                         datetime_obj = parse(date)
-                        if datetime_obj < self.month_range:
-                            logger.info(f'news at {datetime_obj} is older than {self.month_range} terminating')
+                        if datetime_obj < self.month_range_date_time:
+                            logger.info(f'news at {datetime_obj} is older than {self.month_range_date_time} terminating')
                             return None
                     except ParserError:
                         ...
@@ -86,10 +109,8 @@ class LaTimes:
                         desc = ""
                     image = news_element.find_element(By.XPATH, self.locator.image)
                     image_url = image.get_attribute('src')
-                    response = requests.get(image_url)
                     image_path = os.path.join(f"{os.getcwd()}/images/{slugify(title, separator='_')}.png")
-                    with open(image_path, 'wb') as file:
-                        file.write(response.content)
+                    self.download_image(image_url, image_path)
                     contain_amount = False
                     for pattern in [r'\$\d+(\.\d+)?', r'\d+(\.\d+)? dollars', r'\d+(\.\d+)? USD']:
                         if re.search(pattern, title + desc):
@@ -107,27 +128,32 @@ class LaTimes:
             self.browser_lib.scroll_element_into_view(self.locator.next_page)
             self.browser_lib.click_element_when_visible(self.locator.next_page)
 
-    def save_news(self):
+    def save_news(self) -> None:
+        """Save scraped news to Excel and archive images in images folder."""
         self.excel_lib.create_workbook(path=f"{os.getcwd()}/output/news.xlsx", fmt="xlsx")
         self.excel_lib.append_rows_to_worksheet(self.data, header=True)
         self.excel_lib.save_workbook()
         if os.listdir(f"{os.getcwd()}/images"):
             self.archive_lib.archive_folder_with_zip(f"{os.getcwd()}/images", include="*.png", archive_name=f"{os.getcwd()}/output/images.zip")
 
-    def start(self):
+    def handle_popup(self):
+        self.browser_lib.execute_javascript('window.scrollTo(0, document.body.scrollHeight);')
+        if self.browser_lib.does_page_contain_element(self.locator.pop_up_module):
+            self.browser_lib.wait_until_page_contains_element(self.locator.pop_up_module)
+            pop_up = self.browser_lib.find_element(self.locator.pop_up_module)
+            pop_close_button = self.browser_lib.driver.execute_script(
+                'return arguments[0].shadowRoot.querySelector("a")', pop_up)
+            pop_close_button.click()
+
+    def start(self) -> None:
+        """Start the scraping process."""
         try:
             logger.info('Process start')
             self.open_news_site("https://www.latimes.com/")
             logger.info('Searching phrase')
             self.search_news_with_phrase()
             logger.info('Applying topic filter')
-            self.browser_lib.execute_javascript('window.scrollTo(0, document.body.scrollHeight);')
-            time.sleep(2)
-            if self.browser_lib.does_page_contain_element(self.locator.pop_up_module):
-                self.browser_lib.wait_until_page_contains_element(self.locator.pop_up_module)
-                pop_up = self.browser_lib.find_element(self.locator.pop_up_module)
-                pop_close_button = self.browser_lib.driver.execute_script('return arguments[0].shadowRoot.querySelector("a")', pop_up)
-                pop_close_button.click()
+            self.handle_popup()
             self.select_topic()
             logger.info('Sorting results')
             self.sort_by_latest()
