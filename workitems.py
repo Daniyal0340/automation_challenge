@@ -15,6 +15,6 @@ try:
         topics = work_item.get('topics', 'Sports')
 except KeyError:
     class INPUT:
-        search = "Imran Khan"
-        month_range = 10
-        topics = ''
+        search = "Pakistan"
+        month_range = 1
+        topics = 'Sport'

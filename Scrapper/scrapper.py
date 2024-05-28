@@ -68,6 +68,11 @@ class LaTimes:
         """Sort news by latest."""
         self.browser_lib.wait_until_element_is_visible(self.locator.sort_btn)
         self.browser_lib.select_from_list_by_value(self.locator.sort_btn, '1')
+        try:
+            self.browser_lib.wait_until_page_contains_element('//div[@class="loading-icon"]')
+            self.browser_lib.wait_until_page_does_not_contain_element('//div[@class="loading-icon"]')
+        except Exception:
+            pass
 
     def select_topic(self) -> None:
         """Select topics to filter news."""
@@ -138,6 +143,10 @@ class LaTimes:
 
     def handle_popup(self):
         self.browser_lib.execute_javascript('window.scrollTo(0, document.body.scrollHeight);')
+        try:
+            self.browser_lib.wait_until_page_contains_element(self.locator.pop_up_module)
+        except AssertionError:
+            return None
         if self.browser_lib.does_page_contain_element(self.locator.pop_up_module):
             self.browser_lib.wait_until_page_contains_element(self.locator.pop_up_module)
             pop_up = self.browser_lib.find_element(self.locator.pop_up_module)
