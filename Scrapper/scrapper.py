@@ -102,7 +102,7 @@ class LaTimes:
                     date = news_element.find_element(By.XPATH, self.locator.date).text
                     try:
                         datetime_obj = parse(date)
-                        if datetime_obj > self.month_range_date_time:
+                        if datetime_obj < self.month_range_date_time:
                             logger.info(f'news at {datetime_obj} is older than {self.month_range_date_time} terminating')
                             return None
                     except ParserError:
